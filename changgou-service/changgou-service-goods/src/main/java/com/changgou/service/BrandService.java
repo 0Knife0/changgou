@@ -53,9 +53,20 @@ public interface BrandService {
 
     /**
      * 分页查询
+     *
      * @param page 当前页
      * @param size 每页显示条数
      * @return
      */
     PageInfo<Brand> findPage(Integer page, Integer size);
+
+    /**
+     * 分页+条件查询
+     *
+     * @param brand
+     * @param page
+     * @param size
+     * @return
+     */
+    PageInfo<Brand> findPage(Brand brand, Integer page, Integer size);
 }
