@@ -21,7 +21,7 @@ public class TemplateController {
     private TemplateService templateService;
 
     @PostMapping("/search/{page}/{size}")
-    public Result<PageInfo<Template>> findPage(@RequestBody Template template,
+    public Result<PageInfo<Template>> findPage(@RequestBody(required = false) Template template,
                                                @PathVariable int page,
                                                @PathVariable int size) {
         PageInfo<Template> pageInfo = templateService.findPage(template, page, size);
