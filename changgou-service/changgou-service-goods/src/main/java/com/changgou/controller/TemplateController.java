@@ -36,7 +36,7 @@ public class TemplateController {
     }
 
     @PostMapping("/search")
-    public Result<List<Template>> findList(@RequestBody Template template) {
+    public Result<List<Template>> findList(@RequestBody(required = false) Template template) {
         List<Template> list = templateService.findList(template);
         return new Result<>(true, StatusCode.OK, "条件查询成功", list);
     }

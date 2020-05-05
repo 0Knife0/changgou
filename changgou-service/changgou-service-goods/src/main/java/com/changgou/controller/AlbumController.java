@@ -28,7 +28,7 @@ public class AlbumController {
      * @return
      */
     @PostMapping("/search/{page}/{size}")
-    public Result<PageInfo<Album>> findPage(@RequestBody Album album,
+    public Result<PageInfo<Album>> findPage(@RequestBody(required = false) Album album,
                                             @PathVariable int page,
                                             @PathVariable int size) {
         PageInfo<Album> pageInfo = albumService.findPage(album, page, size);
@@ -56,7 +56,7 @@ public class AlbumController {
      * @return
      */
     @PostMapping(value = "/search")
-    public Result<List<Album>> findList(@RequestBody Album album) {
+    public Result<List<Album>> findList(@RequestBody(required = false) Album album) {
         List<Album> list = albumService.findList(album);
         return new Result<>(true, StatusCode.OK, "条件查询成功", list);
     }
