@@ -163,17 +163,19 @@ public class SpecServiceImpl implements SpecService {
         return specMapper.selectAll();
     }
 
+    /**
+     * 根据分类的ID 查询规格的列表数据
+     *
+     * @param id 三级分类的ID
+     * @return
+     */
     @Override
     public List<Spec> findByCategoryId(Integer id) {
-        //1.先根据商品分类的ID 获取模板的ID
-        //select template_id from tb_category where id = 1216
-
+        // 根据id查询对应的分类
         Category category = categoryMapper.selectByPrimaryKey(id);
-        //2.再根据模板的ID 获取模板对应的规格的列表
-        // select * from tb_spec where template_id = 43
-        Spec condition = new Spec();
-        condition.setTemplateId(category.getTemplateId());
-        //3.返回
-        return specMapper.select(condition);//where template_id = 43
+        // 取出分类对应的模板id，通过模板id查询对应的规格
+        Spec spec = new Spec();
+        spec.setTemplateId(category.getTemplateId());
+        return specMapper.select(spec);
     }
 }
