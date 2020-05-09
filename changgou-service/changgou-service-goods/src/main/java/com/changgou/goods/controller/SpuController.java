@@ -131,7 +131,7 @@ public class SpuController {
     @PostMapping("/save")
     public Result save(@RequestBody Goods goods){
         spuService.saveGoods(goods);
-        return new Result(true,StatusCode.OK,"保存商品成功",null);
+        return new Result(true,StatusCode.OK,"保存商品成功");
     }
 
     //根据点击到的商品(SPU)的ID 获取到GOODS数据返回给页面展示
