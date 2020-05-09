@@ -69,7 +69,7 @@ public interface SpuService {
      * 添加商品(SPU+ SKUlIST)
      * @param goods   update  add
      */
-    void save(Goods goods);
+    void saveGoods(Goods goods);
 
     Goods findGoodsById(Long id);
 

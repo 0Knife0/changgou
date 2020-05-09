@@ -100,7 +100,7 @@ public class SpuServiceImpl implements SpuService {
     public Example createExample(Spu spu) {
         Example example = new Example(Spu.class);
         Example.Criteria criteria = example.createCriteria();
-        criteria.andEqualTo("isDelete",0);//只找 没有被删除的
+        criteria.andEqualTo("isDelete", 0);//只找 没有被删除的
         if (spu != null) {
             // 主键
             if (!StringUtils.isEmpty(spu.getId())) {
@@ -202,7 +202,7 @@ public class SpuServiceImpl implements SpuService {
     @Override
     public void delete(Long id) {
         Spu spu = spuMapper.selectByPrimaryKey(id);
-        if(spu==null){
+        if (spu == null) {
             throw new RuntimeException("商品不存在");
         }
         if (!spu.getIsDelete().equals("1")) {
@@ -254,66 +254,53 @@ public class SpuServiceImpl implements SpuService {
 
 
     @Override
-    public void save(Goods goods) {
-
+    public void saveGoods(Goods goods) {
+        // 增加spu
         Spu spu = goods.getSpu();
-        if (goods.getSpu().getId() == null) {
-            //新增
-            //1.先获取SPU的数据  添加到表中 spu表中
-            spu.setId(idWorker.nextId());//生成主键 要唯一 雪花算法.
-            spuMapper.insertSelective(spu);
+        spu.setId(idWorker.nextId());
+        spuMapper.insertSelective(spu);
 
-            //新增SKU
-        } else {
-            //修改
-            spuMapper.updateByPrimaryKeySelective(spu);
-
-            //1.先删除spu对应的原来的SKU的类别
-
-            //delete from tb_sku where spu_id = ?
-            Sku condition = new Sku();
-            condition.setSpuId(spu.getId());
-            skuMapper.delete(condition);
-            //2.再新增
-
-        }
-
-
-        //2.获取SKU 的列表数据  循环遍历添加掉sku表中
+        // 增加sku
+        Date date = new Date();
+        Category category = categoryMapper.selectByPrimaryKey(spu.getCategory3Id());
+        Brand brand = brandMapper.selectByPrimaryKey(spu.getBrandId());
+        // 获取sku集合
         List<Sku> skuList = goods.getSkuList();
+        // 循环组装sku的名字
         for (Sku sku : skuList) {
-            // id 要生成
-            sku.setId(idWorker.nextId());
-            // name 要生成 (spu的名称+ " "+ 规格的选项的值 )  //  spu的名称: iphonex  规格的数据: spec:{ 颜色:红色,内存大小:16G}
-            // 先获取规格的数据
-            String spec = sku.getSpec(); //{ 颜色:红色,内存大小:16G}
-            Map<String, String> map = JSON.parseObject(spec, Map.class);
-            // 转成map对象  key:颜色  value:红色
-            String titile = spu.getName();
-            for (String key : map.keySet()) {
-                // 获取SPU的名称 拼接 即可
-                titile += " " + map.get(key);
+            // 构建sku名称，采用spu+规格值组装
+
+            // 判空，防止空指针异常
+            if (StringUtils.isEmpty(sku.getSpec())) {
+                sku.setSpec("{}");
             }
-            sku.setName(titile);
-
-            // create_time
-            sku.setCreateTime(new Date());
-
-            // update_time
-            sku.setUpdateTime(sku.getCreateTime());
-
-            // spu_id
+            // 获取spu名称
+            String name = spu.getName();
+            // 将规格转换成Map
+            Map<String, String> map = JSON.parseObject(sku.getSpec(), Map.class);
+            // 循环组装sku名称;
+            for (String value : map.values()) {
+                name += " " + value;
+            }
+            /*for (Map.Entry<String, String> entry : map.entrySet()) {
+                name += " " + entry.getValue();
+            }*/
+            sku.setName(name);
+            // id
+            sku.setId(idWorker.nextId());
+            // spuId
             sku.setSpuId(spu.getId());
-
-            // category_id 3级分类的ID
-            Integer category3Id = spu.getCategory3Id();
-            sku.setCategoryId(category3Id);
-            // category_name 3级分类的名称
-            Category category = categoryMapper.selectByPrimaryKey(category3Id);
+            // 创建时间
+            sku.setCreateTime(date);
+            // 修改时间
+            sku.setUpdateTime(date);
+            // 商品分类Id
+            sku.setCategoryId(spu.getCategory3Id());
+            // 分类名字
             sku.setCategoryName(category.getName());
-            // brand_name
-            Brand brand = brandMapper.selectByPrimaryKey(spu.getBrandId());
+            // 品牌名字
             sku.setBrandName(brand.getName());
+            // 增加
             skuMapper.insertSelective(sku);
         }
     }
@@ -358,7 +345,7 @@ public class SpuServiceImpl implements SpuService {
             throw new RuntimeException("商品不存在或者已经删除");
         }
 
-        if(!spu.getStatus().equals("1") || !spu.getIsMarketable().equals("1")){
+        if (!spu.getStatus().equals("1") || !spu.getIsMarketable().equals("1")) {
             throw new RuntimeException("商品必须要审核或者商品必须要是上架的状态");
         }
 
@@ -371,11 +358,11 @@ public class SpuServiceImpl implements SpuService {
     public void logicDeleteSpu(Long id) {
         // update set is_delete=1 where id =? and is_delete=0
         Spu spu = spuMapper.selectByPrimaryKey(id);
-        if(spu==null){
+        if (spu == null) {
             throw new RuntimeException("商品不存在");
         }
 
-        if(spu.getIsMarketable().equals("1")){
+        if (spu.getIsMarketable().equals("1")) {
             throw new RuntimeException("商品还没下架,不能删除");
         }
         spu.setIsDelete("1");
@@ -387,16 +374,16 @@ public class SpuServiceImpl implements SpuService {
     public void restoreSpu(Long id) {
         // update set is_delete=0 where id =? and is_delete=1
         Spu spu = spuMapper.selectByPrimaryKey(id);
-        if(spu==null){
+        if (spu == null) {
             throw new RuntimeException("商品不存在");
         }
         Spu data = new Spu();
         data.setIsDelete("0");//恢复
         Example exmaple = new Example(Spu.class);
         Example.Criteria criteria = exmaple.createCriteria();
-        criteria.andEqualTo("id",id);//where id =1
-        criteria.andEqualTo("isDelete","1");
-        spuMapper.updateByExampleSelective(data,exmaple);
+        criteria.andEqualTo("id", id);//where id =1
+        criteria.andEqualTo("isDelete", "1");
+        spuMapper.updateByExampleSelective(data, exmaple);
 // spuMapper.updateByPrimaryKeySelective(spu);//根据主键来进行更新  update set name=? where id=?
     }
 

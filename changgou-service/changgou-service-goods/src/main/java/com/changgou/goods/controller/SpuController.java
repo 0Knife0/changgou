@@ -130,7 +130,7 @@ public class SpuController {
      */
     @PostMapping("/save")
     public Result save(@RequestBody Goods goods){
-        spuService.save(goods);
+        spuService.saveGoods(goods);
         return new Result(true,StatusCode.OK,"保存商品成功",null);
     }
 
