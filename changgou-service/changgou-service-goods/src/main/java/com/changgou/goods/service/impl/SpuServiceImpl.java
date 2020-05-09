@@ -257,8 +257,20 @@ public class SpuServiceImpl implements SpuService {
     public void saveGoods(Goods goods) {
         // 增加spu
         Spu spu = goods.getSpu();
-        spu.setId(idWorker.nextId());
-        spuMapper.insertSelective(spu);
+
+        // 检查spu的id是否为空
+        if (spu.getId() == null) {
+            // 如果为空为增加操作
+            spu.setId(idWorker.nextId());
+            spuMapper.insertSelective(spu);
+        } else {
+            // 如果不为空为修改操作
+            spuMapper.updateByPrimaryKeySelective(spu);
+            // 删除spu的sku列表
+            Sku sku = new Sku();
+            sku.setSpuId(spu.getId());
+            skuMapper.delete(sku);
+        }
 
         // 增加sku
         Date date = new Date();
