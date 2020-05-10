@@ -197,12 +197,24 @@ public class SpuController {
         return new Result(true, StatusCode.OK, "下架" + count + "个商品");
     }
 
+    /**
+     * 逻辑删除
+     *
+     * @param id
+     * @return
+     */
     @DeleteMapping("/logic/delete/{id}")
     public Result logicDeleteSpu(@PathVariable(name = "id") Long id) {
         spuService.logicDeleteSpu(id);
         return new Result(true, StatusCode.OK, "逻辑删除成功");
     }
 
+    /**
+     * 还原删除的商品
+     *
+     * @param id
+     * @return
+     */
     @PutMapping("/restore/{id}")
     public Result restore(@PathVariable(name = "id") Long id) {
         spuService.restoreSpu(id);

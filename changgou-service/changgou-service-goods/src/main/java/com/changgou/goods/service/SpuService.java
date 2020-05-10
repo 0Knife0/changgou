@@ -114,7 +114,16 @@ public interface SpuService {
      */
     int pullMany(Long[] ids);
 
+    /**
+     * 逻辑删除
+     *
+     * @param id
+     */
     void logicDeleteSpu(Long id);
 
+    /**
+     * 还原被删除
+     * @param id
+     */
     void restoreSpu(Long id);
 }

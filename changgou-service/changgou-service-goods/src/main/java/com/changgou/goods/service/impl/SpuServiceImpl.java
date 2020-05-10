@@ -427,37 +427,42 @@ public class SpuServiceImpl implements SpuService {
         return spuMapper.updateByExampleSelective(spu, example);
     }
 
+    /**
+     * 逻辑删除
+     *
+     * @param id
+     */
     @Override
     public void logicDeleteSpu(Long id) {
-        // update set is_delete=1 where id =? and is_delete=0
         Spu spu = spuMapper.selectByPrimaryKey(id);
-        if (spu == null) {
-            throw new RuntimeException("商品不存在");
+        // 检查商品是否已下架
+        if (!spu.getIsMarketable().equals("0")) {
+            throw new RuntimeException("必须先下架再删除！");
         }
-
-        if (spu.getIsMarketable().equals("1")) {
-            throw new RuntimeException("商品还没下架,不能删除");
-        }
+        // 设置为已删除
         spu.setIsDelete("1");
+        // 设置为未审核
         spu.setStatus("0");
         spuMapper.updateByPrimaryKeySelective(spu);
     }
 
+    /**
+     * 还原被删除商品
+     *
+     * @param id
+     */
     @Override
     public void restoreSpu(Long id) {
-        // update set is_delete=0 where id =? and is_delete=1
         Spu spu = spuMapper.selectByPrimaryKey(id);
-        if (spu == null) {
-            throw new RuntimeException("商品不存在");
+        // 判断是否已被删除
+        if (!spu.getIsMarketable().equals("1")) {
+            throw new RuntimeException("商品尚未被删除！");
         }
-        Spu data = new Spu();
-        data.setIsDelete("0");//恢复
-        Example exmaple = new Example(Spu.class);
-        Example.Criteria criteria = exmaple.createCriteria();
-        criteria.andEqualTo("id", id);//where id =1
-        criteria.andEqualTo("isDelete", "1");
-        spuMapper.updateByExampleSelective(data, exmaple);
-// spuMapper.updateByPrimaryKeySelective(spu);//根据主键来进行更新  update set name=? where id=?
+        // 设置为未删除
+        spu.setIsDelete("0");
+        // 设置为未审核
+        spu.setStatus("0");
+        spuMapper.updateByPrimaryKeySelective(spu);
     }
 
 
