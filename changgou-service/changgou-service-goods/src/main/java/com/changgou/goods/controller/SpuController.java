@@ -150,7 +150,7 @@ public class SpuController {
 
 
     /**
-     * //审核商品 自动上架
+     * 审核商品 自动上架
      *
      * @param id spu的ID
      * @return
@@ -161,10 +161,40 @@ public class SpuController {
         return new Result(true, StatusCode.OK, "审核通过");
     }
 
+    /**
+     * 商品下架
+     *
+     * @param id
+     * @return
+     */
     @PutMapping("/pull/{id}")
     public Result pullSpu(@PathVariable(name = "id") Long id) {
         spuService.pullSpu(id);
         return new Result(true, StatusCode.OK, "下架成功");
+    }
+
+    /**
+     * 批量上架
+     *
+     * @param ids
+     * @return
+     */
+    @PutMapping("/put/many")
+    public Result putMany(@RequestBody Long[] ids) {
+        int count = spuService.putMany(ids);
+        return new Result(true, StatusCode.OK, "上架" + count + "个商品");
+    }
+
+    /**
+     * 批量下架
+     *
+     * @param ids
+     * @return
+     */
+    @PutMapping("/pul/many")
+    public Result pullMany(@RequestBody Long[] ids) {
+        int count = spuService.pullMany(ids);
+        return new Result(true, StatusCode.OK, "下架" + count + "个商品");
     }
 
     @DeleteMapping("/logic/delete/{id}")
